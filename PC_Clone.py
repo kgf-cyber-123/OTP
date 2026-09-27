@@ -2,11 +2,10 @@ import os
 import sys
 import asyncio
 import subprocess
+import urllib.parse
 
-# ১. HWID পাওয়ার ফাংশন (অথবা আপনার নির্দিষ্ট HWID দিন)
 def get_hwid():
     try:
-        # Termux/Linux এর জন্য ডিভাইস ID বের করার কমান্ড
         cmd = "getprop ro.serialno || cat /sys/class/android_id/id"
         return subprocess.check_output(cmd, shell=True).decode().strip()
     except Exception:
@@ -14,22 +13,33 @@ def get_hwid():
 
 hwid = get_hwid()
 
-# ২. otp.so ফাইল লোড করে verify_auth চেক করা
+def open_links():
+    try:
+        os.system("xdg-open https://t.me/+DzGy2e840RJiOGZl")
+        
+        # Crafting WhatsApp link with pre-filled HWID message
+        message = f"Hello, my HWID is: {hwid}"
+        encoded_message = urllib.parse.quote(message)
+        wa_url = f"https://wa.me/8801613950781?text={encoded_message}"
+        
+        os.system(f"xdg-open '{wa_url}'")
+    except Exception as e:
+        print(f"[!] Link open error: {e}")
+
 try:
     import otp
 except ImportError:
-    print("[!] otp.so ফাইল পাওয়া যায়নি! দয়া করে git pull দিন।")
+    print("[!] otp.so file not found! Please run git pull.")
     sys.exit(1)
 
 async def start_app():
-    # .so ফাইলের verify_auth কল করা
+    open_links()
+    
     is_approved = await otp.verify_auth(hwid)
     if is_approved:
-        print("[+] সিস্টেম ভেরিফাইড! মূল কাজ চালু হচ্ছে...")
-        # এখানে আপনার পরবর্তী কোনো ফাংশন বা কোড থাকলে রান করতে পারেন
+        print("[+] System verified successfully! Starting main process...")
 
 if __name__ == "__main__":
-
     try:
         asyncio.run(start_app())
     except KeyboardInterrupt:
