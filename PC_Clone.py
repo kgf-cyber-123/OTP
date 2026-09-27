@@ -1,3 +1,3 @@
 import os
 import otp
-otp.menu()
+otp.main()
